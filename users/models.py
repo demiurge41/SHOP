@@ -4,12 +4,13 @@ from users.managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(unique=True)
+    phone_number = models.CharField(max_length=11, blank=True, null=True)
     is_active = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
 
     objects = CustomUserManager()
 
-    REQUIRED_FIELDS = []
+    REQUIRED_FIELDS = ['phone_number']
     USERNAME_FIELD = "email"
 
     def __str__(self):
