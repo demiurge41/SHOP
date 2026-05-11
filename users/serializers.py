@@ -16,6 +16,11 @@ class CustomTokenObtainPairSerializer(TokenObtainPairSerializer):
     def get_token(cls, user):
         token = super().get_token(user)
         token["email"] = user.email
+
+        token["birthdate"] = (
+        user.birthdate.strftime("%Y-%m-%d")
+        if user.birthdate else None)
+        
         return token
 
 

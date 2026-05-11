@@ -6,23 +6,28 @@ from users.models import ConfirmationCode, CustomUser
 # Register your models here.
 @admin.register(CustomUser)
 class CustomUserAdmin(UserAdmin):
-    list_display = ["id", 
-                    "email", 
-                    "phone_number",
-                    "is_active", 
-                    "is_staff"]
+    list_display = [
+        "id",
+        "email",
+        "phone_number",
+        "birthdate",
+        "is_active",
+        "is_staff"
+        ]
     
+
     list_editable = ["is_active"]
     ordering = ["email"]
 
-    fieldsets = (
-        (None, {"fields": ("email", 
-                           "password", 
-                           "phone_number",
-                           "is_active")}),
-
-        ("Important dates", {"fields": ("last_login",)}),
-    )
+    fieldsets = ((None, {"fields": (
+        "email",
+        "password",
+        "phone_number",
+        "birthdate",
+        "is_active"
+    )}),
+    ("Important dates", {"fields": ("last_login",)}),
+)
 
 
 @admin.register(ConfirmationCode)

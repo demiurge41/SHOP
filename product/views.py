@@ -18,8 +18,10 @@ from .serializers import (
     ReviewValidateSerializer
 )
 from common.permissions import IsAuth, IsAnon, CanEditWithin15Minutes, IsModerator
+from common.validators import validate_age
 
 PAGE_SIZE = 5
+
 
 
 class CustomPagination(PageNumberPagination):
@@ -73,6 +75,7 @@ class ProductListCreateAPIView(ListCreateAPIView):
     permission_classes = [IsAnon | IsModerator | (CanEditWithin15Minutes & IsAuth)]
 
     def post(self, request, *args, **kwargs):
+        validate_age(request)
         email = request.auth.get("email")
         print("email", email)
         serializer = ProductValidateSerializer(data=request.data)
