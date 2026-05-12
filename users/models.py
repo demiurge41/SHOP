@@ -3,6 +3,11 @@ from django.contrib.auth.models import AbstractBaseUser, PermissionsMixin
 from users.managers import CustomUserManager
 
 class CustomUser(AbstractBaseUser, PermissionsMixin):
+
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
+    registration_source = models.CharField(max_length=20, default='local')
+    
     email = models.EmailField(unique=True)
     phone_number = models.CharField(max_length=11, blank=True, null=True)
     birthdate = models.DateField(null=True, blank=True)

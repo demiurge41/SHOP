@@ -5,6 +5,7 @@ from django.contrib.auth import get_user_model
 from users.serializers import OauthCodeSerializer
 import requests
 import os
+from django.utils import timezone
 
 CustomUser = get_user_model()
 
@@ -44,10 +45,22 @@ class GoogleLoginAPIView(CreateAPIView):
         print(f"user_info {user_info}")
 
         email = user_info["email"]
+        first_name = user_info.get("given_name")
+        last_name = user_info.get("family_name")
+        
+        user, created = CustomUser.objects.get_or_create(email=email,defaults={
+            "first_name": first_name,
+            "last_name": last_name,
+            "registration_source": "google",
+            "is_active": True})
+        
+        if not created:
+            user.first_name = first_name
+            user.last_name = last_name
+            user.is_active = True
 
-        user, created = CustomUser.objects.get_or_create(
-            email=email,
-        )
+        user.last_login = timezone.now()
+        user.save()
 
         refresh = RefreshToken.for_user(user)
         refresh["email"] = user.email
