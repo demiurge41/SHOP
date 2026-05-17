@@ -17,6 +17,8 @@ from .models import ConfirmationCode, CustomUser
 import random
 import string
 from rest_framework_simplejwt.views import TokenObtainPairView
+from django.core.cache import cache
+
 
 class CustomTokenObtainPairView(TokenObtainPairView):
     serializer_class = CustomTokenObtainPairSerializer
@@ -66,12 +68,19 @@ class RegistrationAPIView(CreateAPIView):
             )
 
             # Create a random 6-digit code
-            code = ''.join(random.choices(string.digits, k=6))
+            #code = ''.join(random.choices(string.digits, k=6))
 
-            confirmation_code = ConfirmationCode.objects.create(
-                user=user,
-                code=code
-            )
+            # confirmation_code = ConfirmationCode.objects.create(
+            #     user=user,
+            #     code=code
+            # )
+
+            code = str(random.randint(100000, 999999))
+            cache.set(f"confirmation_code_{user.id}", code, timeout=300)
+
+
+
+
 
         return Response(
             status=status.HTTP_201_CREATED,
@@ -94,11 +103,28 @@ class ConfirmUserAPIView(CreateAPIView):
         with transaction.atomic():
             user = CustomUser.objects.get(id=user_id)
             user.is_active = True
+
+            saved_code = cache.get(f"confirmation_code_{user.id}")
+
+            if not saved_code:
+                return Response(
+                    status=status.HTTP_404_NOT_FOUND,
+                    data={'error': 'Confirmation code not found'}
+                )
+
+            if saved_code != serializer.validated_data['code']:
+                return Response(
+                    status=status.HTTP_400_BAD_REQUEST,
+                    data={'error': 'Invalid confirmation code'}
+                )
+
+
             user.save()
+            cache.delete(f"confirmation_code_{user.id}")
 
             token, _ = Token.objects.get_or_create(user=user)
 
-            ConfirmationCode.objects.filter(user=user).delete()
+            #objects.filter(user=user).delete()
 
         return Response(
             status=status.HTTP_200_OK,
