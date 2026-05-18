@@ -101,6 +101,12 @@ class ProductListCreateAPIView(ListCreateAPIView):
                         status=status.HTTP_201_CREATED)
     
     def get(self, request, *args, **kwargs):
+
+        from users.tasks import add
+        add.delay(4, 8)
+
+
+
         from django.core.cache import cache
         cached_data = cache.get("product_list")
         if cached_data:

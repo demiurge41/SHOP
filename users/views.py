@@ -53,6 +53,8 @@ class RegistrationAPIView(CreateAPIView):
     serializer_class = RegisterValidateSerializer
 
     def post(self, request, *args, **kwargs):
+
+
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -79,7 +81,8 @@ class RegistrationAPIView(CreateAPIView):
             cache.set(f"confirmation_code_{user.id}", code, timeout=300)
 
 
-
+            from users.tasks import send_email
+            send_email.delay(email, code)
 
 
         return Response(
