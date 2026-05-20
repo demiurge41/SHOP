@@ -19,8 +19,8 @@ app.autodiscover_tasks()
 from celery.beat import crontab
 
 app.conf.beat_schedule = {
-    "delete users": {
-        "task": "users.tasks.delete_unactive_users",
-        "schedule": crontab(minute="*"),
+    "clear reviews": {
+        "task": "users.tasks.clear_old_reviews",
+        "schedule": crontab(hour=0, minute=0)
     }
 }
