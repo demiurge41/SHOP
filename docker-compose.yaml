@@ -3,13 +3,15 @@ services:
     container_name: shop_web
     build:
       context: .
-    command: sh -c "python manage.py makemigrations &&  python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
-    ports:
-      - "7001:8000"
+    command: sh /app/entrypoint.sh
+    expose:
+      - 8000
     env_file:
       .env
     volumes:
       - .:/app
+      - back_media:/app/media
+      - back_static:/app/static
     depends_on:
       - postgres
       - redis
@@ -68,6 +70,20 @@ services:
     volumes:
       - .:/app
 
+  nginx:
+    image: nginx:1.25
+    ports:
+    - "80:80"
+    depends_on:
+      - web
+    volumes:
+      - ./nginx.conf:/etc/nginx/conf.d/default.conf
+      - back_media:/app/media
+      - back_static:/app/static
+    container_name: shop_nginx
+
 volumes:
   db-data:
   redis-data:
+  back_media:
+  back_static:
